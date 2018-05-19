@@ -34,6 +34,10 @@ class NewsEntriesState extends State<NewsEntriesPage> {
   // _biggerFontStyle set a font size.
   final TextStyle _biggerFontStyle = TextStyle(fontSize: 18.0);
 
+  // variables for control scroll.
+  int _nextPage = 1;
+  bool _isLastPage = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +52,7 @@ class NewsEntriesState extends State<NewsEntriesPage> {
   void initState() {
     super.initState();
     // get data of news entries.
-    _getNewsEntries();
+    _getInitialNewsEntries();
   }
 
   Widget _buildBody() {
@@ -80,7 +84,27 @@ class NewsEntriesState extends State<NewsEntriesPage> {
       if (i < _newsEntries.length) {
         // return row widget.
         return _buildNewsEntryRow(_newsEntries[i]);
-      } else {
+      } else if (i == _newsEntries.length) {
+        // if user reaches the end of data.
+
+        // if the loaded page is the last one,
+        if (_isLastPage) {
+          // end of list.
+          return null;
+        } else {
+          // get the next page's data of news entries.
+          _getNewsEntries();
+          // display ProgressBar.
+          return Center (
+            child: Container(
+              margin: EdgeInsets.only(top: 8.0),
+              width: 32.0,
+              height: 32.0,
+              child: CircularProgressIndicator(),
+            )
+          );
+        }
+      } else if (i > _newsEntries.length) {
         // end of list.
         return null;
       }
@@ -98,11 +122,27 @@ class NewsEntriesState extends State<NewsEntriesPage> {
     );
   }
 
+  Future<Null> _getInitialNewsEntries() async {
+    _nextPage = 1;
+    await _getNewsEntries();
+  }
+
   Future<Null> _getNewsEntries() async {
-    final newsEntries = await hackerNewsService.getNewsEntries(1);
-    // notice the change of the state and redraw the widget.
-    setState(() {
-      _newsEntries.addAll(newsEntries);
-    });
+    // get the data of news entries corresponding to _nextPage
+    final newsEntries = await hackerNewsService.getNewsEntries(_nextPage);
+    print(newsEntries.length);
+    if (newsEntries.isEmpty) {
+      // notice the reach of last page.
+      setState(() {
+        _isLastPage = true;
+      });
+    } else {
+      // notice the change of the state and redraw the widget.
+      setState(() {
+        // append the new data to the list of news entries.
+        _newsEntries.addAll(newsEntries);
+        _nextPage++;
+      });
+    }
   }
 }
