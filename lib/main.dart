@@ -82,6 +82,10 @@ class NewsEntriesState extends State<NewsEntriesPage> {
   // _savedEntries stores the news entries favorited.
   final Set<NewsEntry> _savedEntries = Set<NewsEntry>();
 
+  // _refreshIndicatorKey is the identifier of the RefreshIndicatorState.
+  // It's unique across the app.
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
+
   // hackerNewsService is a instance of mock service for fetching data of news entries.
   final HackerNewsServiceMock hackerNewsService = HackerNewsServiceMock();
 
@@ -113,6 +117,13 @@ class NewsEntriesState extends State<NewsEntriesPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Hacker News Light'),
+        // display navigation item and set the eventHandler to it.
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.list),
+            onPressed: _navigateToSavedPage,
+          )
+        ],
       ),
       body: _buildBody(),
     );
@@ -139,8 +150,12 @@ class NewsEntriesState extends State<NewsEntriesPage> {
         ),
       );
     } else {
-      // display news entries as ListView.
-      return _buildNewsEntriesListView();
+      return RefreshIndicator(
+        key: _refreshIndicatorKey,
+        onRefresh: _getInitialNewsEntries,
+        // display news entries as ListView.
+        child: _buildNewsEntriesListView(),
+      );
     }
   }
 
@@ -250,5 +265,37 @@ class NewsEntriesState extends State<NewsEntriesPage> {
         _nextPage++;
       });
     }
+  }
+
+  // _navigateToSavedPage navigate from AppHome to the favorite news list page.
+  void _navigateToSavedPage() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      // tiles is a row of list.
+      final tiles = _savedEntries.map(
+        (entry) {
+          return ListTile(
+            title: Text(
+              entry.title,
+              style: _biggerFontStyle,
+            ),
+          );
+        },
+      );
+      // divided transforms tiles to dividedTiles
+      final divided = ListTile
+          .divideTiles(
+            context: context,
+            tiles: tiles,
+          )
+          .toList();
+
+      // return the Widget of favorite news entries list view.
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Saved Entries'),
+        ),
+        body: ListView(children: divided),
+      );
+    }));
   }
 }
