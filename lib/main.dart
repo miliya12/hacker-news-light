@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:hacker_news_light/model/hacker_news_service_mock.dart';
@@ -18,6 +19,56 @@ class HackerNewsLight extends StatelessWidget {
   }
 }
 
+// define the type of the callback function for FavoriteButton.
+typedef void FavoritePressedCallback(
+    NewsEntry newsEntry, bool isAlreadySaved, Set<NewsEntry> savedEntries);
+
+/**
+ * Favorite button
+ */
+// The state for FavoriteButton is managed by the parent Widget, NewsEntriesPage.
+class FavoriteButton extends StatelessWidget {
+  // NewsEntry is one user favorites.
+  final NewsEntry newsEntry;
+
+  // savedEntries is a unique list of NewsEntries.
+  // Set is a collection of objects in which each object can occur only once.
+  // See: https://api.dartlang.org/stable/1.24.3/dart-core/Set-class.html
+  final Set<NewsEntry> savedEntries;
+
+  // handleFavoritePressed is called when user presses a favorite button.
+  final FavoritePressedCallback handleFavoritePressed;
+
+  // isAlreadySaved is a flag whether the news entry has been favorited.
+  final bool isAlreadySaved;
+
+  // Constructor
+  FavoriteButton(
+      {@required this.newsEntry,
+      @required this.savedEntries,
+      @required this.handleFavoritePressed})
+      : isAlreadySaved = savedEntries.contains(newsEntry);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(0.0),
+      child: IconButton(
+        icon: Icon(
+          isAlreadySaved ? Icons.favorite : Icons.favorite_border,
+          color: isAlreadySaved ? Colors.red : null,
+        ),
+        onPressed: () {
+          handleFavoritePressed(newsEntry, isAlreadySaved, savedEntries);
+        },
+      ),
+    );
+  }
+}
+
+/**
+ * Main layout of news entries list page
+ */
 class NewsEntriesPage extends StatefulWidget {
   // StatefulなWidgetはcreateStateの関数内でbuildされる
   @override
@@ -97,14 +148,13 @@ class NewsEntriesState extends State<NewsEntriesPage> {
           // get the next page's data of news entries.
           _getNewsEntries();
           // display ProgressBar.
-          return Center (
-            child: Container(
-              margin: EdgeInsets.only(top: 8.0),
-              width: 32.0,
-              height: 32.0,
-              child: CircularProgressIndicator(),
-            )
-          );
+          return Center(
+              child: Container(
+            margin: EdgeInsets.only(top: 8.0),
+            width: 32.0,
+            height: 32.0,
+            child: CircularProgressIndicator(),
+          ));
         }
       } else if (i > _newsEntries.length) {
         // end of list.
@@ -123,6 +173,9 @@ class NewsEntriesState extends State<NewsEntriesPage> {
       ),
       // display badge.
       leading: _buildBadge(newsEntry.points),
+      // display the information of the news entry as subtitle.
+      subtitle:
+          Text('${newsEntry.domain} | ${newsEntry.commentsCount}comments.'),
     );
   }
 
