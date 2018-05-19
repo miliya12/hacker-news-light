@@ -79,11 +79,30 @@ class NewsEntriesState extends State<NewsEntriesPage> {
   // _newsEntries stores newsEntries data.
   final List<NewsEntry> _newsEntries = [];
 
+  // _savedEntries stores the news entries favorited.
+  final Set<NewsEntry> _savedEntries = Set<NewsEntry>();
+
   // hackerNewsService is a instance of mock service for fetching data of news entries.
   final HackerNewsServiceMock hackerNewsService = HackerNewsServiceMock();
 
   // _biggerFontStyle set a font size.
   final TextStyle _biggerFontStyle = TextStyle(fontSize: 18.0);
+
+  _handleFavoritePressed(
+      NewsEntry newsEntry, bool isAlreadySaved, Set<NewsEntry> savedEntries) {
+    // notice that the favorite button is pressed.
+    setState(
+      () {
+        // If the news entry has been already favorited, unfavorite it.
+        // Otherwise, favorite it.
+        if (isAlreadySaved) {
+          savedEntries.remove(newsEntry);
+        } else {
+          savedEntries.add(newsEntry);
+        }
+      },
+    );
+  }
 
   // variables for control scroll.
   int _nextPage = 1;
@@ -176,6 +195,12 @@ class NewsEntriesState extends State<NewsEntriesPage> {
       // display the information of the news entry as subtitle.
       subtitle:
           Text('${newsEntry.domain} | ${newsEntry.commentsCount}comments.'),
+      // display a favorite button and register callback handler.
+      trailing: FavoriteButton(
+        newsEntry: newsEntry,
+        savedEntries: _savedEntries,
+        handleFavoritePressed: _handleFavoritePressed,
+      ),
     );
   }
 
