@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:hacker_news_light/model/hacker_news_service_mock.dart';
+import 'package:hacker_news_light/model/hacker_news_service.dart';
 import 'package:hacker_news_light/model/news_entry.dart';
 
 void main() => runApp(HackerNewsLight());
@@ -87,7 +87,7 @@ class NewsEntriesState extends State<NewsEntriesPage> {
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
   // hackerNewsService is a instance of mock service for fetching data of news entries.
-  final HackerNewsServiceMock hackerNewsService = HackerNewsServiceMock();
+  final HackerNewsService hackerNewsService = HackerNewsService();
 
   // _biggerFontStyle set a font size.
   final TextStyle _biggerFontStyle = TextStyle(fontSize: 18.0);
