@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:hacker_news_light/model/hacker_news_service.dart';
 import 'package:hacker_news_light/model/news_entry.dart';
 
+import 'package:url_launcher/url_launcher.dart' as url_launcher;
+
 void main() => runApp(HackerNewsLight());
 
 class HackerNewsLight extends StatelessWidget {
@@ -216,6 +218,10 @@ class NewsEntriesState extends State<NewsEntriesPage> {
         savedEntries: _savedEntries,
         handleFavoritePressed: _handleFavoritePressed,
       ),
+      // register onTapEvent.
+      onTap: () {
+        _viewNewsEntry(newsEntry);
+      },
     );
   }
 
@@ -297,5 +303,10 @@ class NewsEntriesState extends State<NewsEntriesPage> {
         body: ListView(children: divided),
       );
     }));
+  }
+
+  // _viewNewsEntry launch the browser and open the page of news entry.
+  void _viewNewsEntry(NewsEntry entry) {
+    url_launcher.launch(entry.url);
   }
 }
