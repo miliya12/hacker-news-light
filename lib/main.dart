@@ -59,6 +59,8 @@ class NewsEntriesState extends State<NewsEntriesPage> {
     if (_newsEntries.isEmpty) {
       // display ProgressBar.
       return Center(
+        // Container is a  convenience widget that combines common painting, positioning, and sizing widgets.
+        // See: https://docs.flutter.io/flutter/widgets/Container-class.html
         child: Container(
           margin: EdgeInsets.only(top: 8.0),
           width: 32.0,
@@ -119,6 +121,33 @@ class NewsEntriesState extends State<NewsEntriesPage> {
         newsEntry.title,
         style: _biggerFontStyle,
       ),
+      // diplay badge.
+      leading: _buildBadge(newsEntry.points),
+    );
+  }
+
+  Widget _buildBadge(int points) {
+    // badge
+    return Container(
+      margin: const EdgeInsets.only(bottom: 2.0),
+      width: 36.0,
+      height: 36.0,
+      decoration: BoxDecoration(
+        // if points is not good(less than 100) or points is none(null), draw the icon with red. Otherwise, draw it with green.
+        color: (points == null || points < 100) ? Colors.red : Colors.green,
+        shape: BoxShape.circle,
+      ),
+      // the content of badge.
+      child: Container(
+        padding: EdgeInsets.all(1.0),
+        child: Center(
+          child: Text(
+            // if point's value is null, display empty text. If not, display points.
+            points == null ? '' : '$points',
+            style: TextStyle(color: Colors.white, fontSize: 16.0),
+          ),
+        ),
+      ),
     );
   }
 
@@ -130,7 +159,6 @@ class NewsEntriesState extends State<NewsEntriesPage> {
   Future<Null> _getNewsEntries() async {
     // get the data of news entries corresponding to _nextPage
     final newsEntries = await hackerNewsService.getNewsEntries(_nextPage);
-    print(newsEntries.length);
     if (newsEntries.isEmpty) {
       // notice the reach of last page.
       setState(() {
