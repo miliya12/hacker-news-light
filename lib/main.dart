@@ -121,7 +121,7 @@ class NewsEntriesState extends State<NewsEntriesPage> {
         newsEntry.title,
         style: _biggerFontStyle,
       ),
-      // diplay badge.
+      // display badge.
       leading: _buildBadge(newsEntry.points),
     );
   }
